@@ -41,8 +41,10 @@ public class Server {
     }
 
     private void listen(ServerSocket server) throws IOException {
+        System.out.println("listening on port:"+server.getLocalPort());
         while (!server.isClosed()) {
             Socket socket = server.accept();
+            System.out.println("socket accepted");
             onAccept.accept(new Connection(socket));
         }
     }

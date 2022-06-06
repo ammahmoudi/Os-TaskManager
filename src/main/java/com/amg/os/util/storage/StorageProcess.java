@@ -1,26 +1,57 @@
 package com.amg.os.util.storage;
 
-import com.amg.os.util.worker.WorkerServer;
+import com.amg.os.App;
+import com.amg.os.controllers.StorageController;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
-public class StorageProcess {
-    public  static int id;
+import static javafx.application.Application.launch;
+
+public class StorageProcess extends Application {
+
     public static int port;
     public  static int[] memoryValues;
-    public static  Storage storage;
 
-    public static StorageServer storageServer;
+    @Override
+    public void start(Stage stage) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("Storage-view.fxml"));
+        Parent root=fxmlLoader.load();
+        StorageController storageController=fxmlLoader.getController();
+        Scene scene = new Scene(root);
+        stage.setTitle("Hello!");
+        stage.setScene(scene);
+
+        stage.show();
+        System.out.println(port+" "+Arrays.toString(memoryValues));
+        try {
+            storageController.initializeValues(port, memoryValues);
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+      //  System.out.println(port);
+
+
+    }
+
 
     public static void main(String[] args) {
-        id= Integer.parseInt(args[0]);
-        port=Integer.parseInt(args[1]);
-        memoryValues= Arrays.stream(args[2].split(" ")).mapToInt(Integer::parseInt).toArray();
-        storage=new Storage(memoryValues);
-        storageServer=new StorageServer(storage);
-        storageServer.listen(port);
+        port=8090;
+        memoryValues=new int[]{1,2,3,4,5};
+        if(args.length>0) {
+            port = Integer.parseInt(args[0]);
+            memoryValues = Arrays.stream(args[1].split(" ")).mapToInt(Integer::parseInt).toArray();
+        }
 
+        launch();
+    }
+    @Override
+    public void stop() {
+        System.exit(0);
     }
 }

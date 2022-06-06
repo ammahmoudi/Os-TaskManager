@@ -9,9 +9,9 @@ import java.io.IOException;
 
 public class StorageTest {
     public static void main(String[] args) throws IOException, InterruptedException {
-        new StorageServer().listen(9091);
+        //new StorageServer().listen(90);
 
-        StorageApi storage = new StorageApi(9091);
+        StorageApi storage = new StorageApi(9087);
 
         Thread.sleep(100);
         System.out.println("the result was: " + storage.obtain(1, 1));

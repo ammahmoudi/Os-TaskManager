@@ -2,21 +2,22 @@ package com.amg.os.util.worker;
 
 import com.amg.os.util.network.connection.Connection;
 import com.amg.os.util.network.server.AbstractServer;
+import com.amg.os.util.storage.WorkerProcess;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class WorkerServer extends AbstractServer {
-    private final WorkerProcess workerProcess;
+    private final Worker worker;
     private final Map<Connection, Thread> obtainThreads;
 
     public WorkerServer() {
-        workerProcess = new WorkerProcess();
+        worker = new Worker();
         obtainThreads = new HashMap<>();
     }
 
-    public WorkerServer(WorkerProcess workerProcess) {
-        this.workerProcess = workerProcess;
+    public WorkerServer(Worker worker) {
+        this.worker = worker;
         obtainThreads = new HashMap<>();
     }
 

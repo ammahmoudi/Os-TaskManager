@@ -28,6 +28,7 @@ public class Storage {
     public int obtain(int index, int id) throws InterruptedException {
         if (lockOwner.getOrDefault(index, -1) != id) {
             locks.get(index).acquire();
+            System.out.println(id+ "aquired lock for "+index);
             lockOwner.put(index, id);
         }
         return data.get(index);
@@ -41,6 +42,7 @@ public class Storage {
     public synchronized void release(int index, int id) {
         if (lockOwner.get(index) == id) {
             locks.get(index).release();
+            System.out.println(id+ "released lock for "+index);
         }
     }
 }

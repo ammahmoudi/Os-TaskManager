@@ -25,7 +25,7 @@ tasks.withType(JavaCompile) {
 
 application {
     mainModule = 'com.amg.os'
-    mainClass = 'com.amg.os.HelloApplication'
+    mainClass = 'com.amg.os.util.storage.StorageProcess'
 }
 
 javafx {
@@ -56,4 +56,34 @@ jlink {
 
 jlinkZip {
     group = 'distribution'
+}
+// at compile time, put resources in same directories as classes
+sourceSets {
+    main.output.resourcesDir = main.java.outputDir
+}
+
+//// at compile time, include resources in module
+//compileJava {
+//    inputs.property("moduleName", moduleName)
+//    doFirst {
+//        options.compilerArgs = [
+//                '--module-path', classpath.asPath,
+//                '--patch-module', "$moduleName=",
+//                + files(sourceSets.main.resources.srcDirs).asPath,
+//                '--module-version', "$moduleVersion"
+//        ]
+//        classpath = files()
+//    }
+//}
+
+// at run time, make Gradle use the module path
+run {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        jvmArgs = [
+                '--module-path', classpath.asPath,
+                '--module', "$moduleName/$mainClassName"
+        ]
+        classpath = files()
+    }
 }

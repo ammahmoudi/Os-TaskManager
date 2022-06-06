@@ -107,6 +107,6 @@ public class Connection {
 
     public void interrupt() {
         if (listenThread != null)
-            listenThread.stop();
+            listenThread.interrupt();
     }
 }
