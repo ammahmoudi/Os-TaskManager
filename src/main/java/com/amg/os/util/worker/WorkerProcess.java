@@ -1,7 +1,6 @@
-package com.amg.os.util.storage;
+package com.amg.os.util.worker;
 
 import com.amg.os.App;
-import com.amg.os.controllers.StorageController;
 import com.amg.os.controllers.WorkerController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -10,9 +9,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.Arrays;
-
-import static javafx.application.Application.launch;
 
 public class WorkerProcess extends Application {
 
@@ -25,9 +21,10 @@ public class WorkerProcess extends Application {
         Parent root=fxmlLoader.load();
         WorkerController workerController =fxmlLoader.getController();
         Scene scene = new Scene(root);
-        stage.setTitle("Worker");
+        stage.setTitle("Worker "+ id);
         stage.setScene(scene);
         stage.show();
+
         try {
             workerController.initializeValues(port,id);
         }catch (Exception e){
@@ -45,6 +42,7 @@ public class WorkerProcess extends Application {
             port = Integer.parseInt(args[0]);
           id=Integer.parseInt(args[1]);
         }
+
 
         launch();
     }

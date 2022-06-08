@@ -24,14 +24,15 @@ public class WorkerController  {
 
 
     public void initializeValues(int port,int id){
-        worker=new Worker(id,port);
-
-        workerServer=new WorkerServer(worker);
-        workerServer.listen(port);
         workerConsole =console;
         PrintStream printStream = new PrintStream(new CustomOutputStream(workerConsole)) ;
         System.setOut(printStream);
         System.setErr(printStream);
+        worker=new Worker(id,port);
+
+        workerServer=new WorkerServer(worker);
+        workerServer.listen(port);
+
 
     }
 }

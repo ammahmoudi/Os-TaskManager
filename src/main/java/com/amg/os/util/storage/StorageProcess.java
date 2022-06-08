@@ -24,7 +24,7 @@ public class StorageProcess extends Application {
         Parent root=fxmlLoader.load();
         StorageController storageController=fxmlLoader.getController();
         Scene scene = new Scene(root);
-        stage.setTitle("Hello!");
+        stage.setTitle("Storage!");
         stage.setScene(scene);
 
         stage.show();

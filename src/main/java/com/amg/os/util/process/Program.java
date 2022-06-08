@@ -29,7 +29,7 @@ public class Program {
         command.add(arg);
         return this;
     }
-    public Program (Class<?> calzz,boolean isFX){
+    public Program (Class<?> clazz,boolean isFX){
         command= new LinkedList<>();
         command.add(javaBin);
         command.add("-cp");
@@ -40,7 +40,7 @@ public class Program {
             command.add("--add-modules");
             command.add(fxModules);
         }
-        command.add(calzz.getCanonicalName());
+        command.add(clazz.getCanonicalName());
     }
     public Program addClassName (Class<?> clazz){
         command.add(clazz.getName());
@@ -50,5 +50,10 @@ public class Program {
         String[] args=new String[command.size()];
         command.toArray(args);
         return new ProcessBuilder(args).start();
+    }
+    public Process runWithIO() throws IOException {
+        String[] args=new String[command.size()];
+        command.toArray(args);
+        return new ProcessBuilder(args).inheritIO().start();
     }
 }

@@ -10,6 +10,7 @@ import javafx.scene.control.TextArea;
 
 import java.io.PrintStream;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 
 public class StorageController  {
@@ -32,6 +33,6 @@ public class StorageController  {
         PrintStream printStream = new PrintStream(new CustomOutputStream(storageConsole)) ;
         System.setOut(printStream);
         System.setErr(printStream);
-       System.out.println("hi");
+        System.out.println("initializing memory with:"+ Arrays.toString(memoryValues));
     }
 }
