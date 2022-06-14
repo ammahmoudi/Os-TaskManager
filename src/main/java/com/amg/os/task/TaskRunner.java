@@ -1,6 +1,7 @@
 package com.amg.os.task;
 
 import java.io.IOException;
+import java.util.concurrent.*;
 
 import com.amg.os.util.storage.StorageApi;
 
@@ -15,11 +16,26 @@ public class TaskRunner {
         task = null;
     }
 
-    public void runTask(TaskContext context) {
+    public TaskContext runTask(TaskContext context) {
         try {
             task = new Task(newStorageApi(), context);
-            task.start();
-        } catch (Exception e) {};
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        task.start();
+        try {
+            //System.out.println("a:"+context.getResult());
+            task.join();
+           // System.out.println("b:"+context.getResult());
+
+        } catch (InterruptedException e) {
+           // System.out.println("finnished in task runner");
+            //System.out.println("c:"+context.getResult());
+
+        }
+
+        return context;
     }
 
     private StorageApi newStorageApi() throws IOException {

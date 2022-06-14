@@ -15,39 +15,21 @@ import java.util.Arrays;
 import static javafx.application.Application.launch;
 
 public class MasterProcess extends Application {
-
-
-
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage stage) throws IOException, InterruptedException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("master-view.fxml"));
         Parent root=fxmlLoader.load();
         MasterController masterController =fxmlLoader.getController();
         Scene scene = new Scene(root);
         stage.setTitle("Master");
         stage.setScene(scene);
-
         stage.show();
         masterController.initializeValues();
-//        System.out.println(port+" "+Arrays.toString(memoryValues));
-//        try {
-//            storageController.initializeValues(port, memoryValues);
-//        }catch (Exception e){
-//            System.out.println(e.getMessage());
-//        }
-        //  System.out.println(port);
-
 
     }
 
 
     public static void main(String[] args) {
-//        port=8090;
-//        memoryValues=new int[]{1,2,3,4,5};
-//        if(args.length>0) {
-//            port = Integer.parseInt(args[0]);
-//            memoryValues = Arrays.stream(args[1].split(" ")).mapToInt(Integer::parseInt).toArray();
-//        }
 
         launch(args);
     }

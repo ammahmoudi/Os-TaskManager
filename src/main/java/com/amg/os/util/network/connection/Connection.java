@@ -47,7 +47,10 @@ public class Connection {
     }
 
     public void send(String message) {
+
         out.println(message);
+
+        System.out.println("sending:[ "+message+" ]");
     }
 
     public void send(Object obj) {
@@ -59,8 +62,12 @@ public class Connection {
      *  otherwise blocks
      */
     public String receive() {
-        if (in.hasNextLine())
-            return in.nextLine();
+        if (in.hasNextLine()){
+            String string=in.nextLine();
+          //  if(string.length()<=20){
+            System.out.println("receiving:[ "+string+" ]");
+            return string;
+        }
         return null;
     }
 

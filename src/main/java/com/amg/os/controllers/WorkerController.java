@@ -1,5 +1,6 @@
 package com.amg.os.controllers;
 
+import com.amg.os.master.MasterApi;
 import com.amg.os.util.CustomOutputStream;
 import com.amg.os.util.storage.Storage;
 import com.amg.os.util.storage.StorageServer;
@@ -9,9 +10,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 
+import java.io.IOException;
 import java.io.PrintStream;
 
-public class WorkerController  {
+public class WorkerController {
 
     @FXML
     private TextArea console;
@@ -20,18 +22,30 @@ public class WorkerController  {
     private Label welcomeText;
     public static WorkerServer workerServer;
     public static Worker worker;
-    public  static TextArea workerConsole;
+    public static TextArea workerConsole;
 
-
-    public void initializeValues(int port,int id){
-        workerConsole =console;
-        PrintStream printStream = new PrintStream(new CustomOutputStream(workerConsole)) ;
+    public void initializeValues(int port, int id) {
+        workerConsole = console;
+        PrintStream printStream = new PrintStream(new CustomOutputStream(workerConsole));
         System.setOut(printStream);
         System.setErr(printStream);
-        worker=new Worker(id,port);
+        worker = new Worker(id, port);
+        workerServer = new WorkerServer(worker);
+        workerServer.listen(0);
+        worker.setPort(workerServer.getServer().port);
 
-        workerServer=new WorkerServer(worker);
-        workerServer.listen(port);
+       new Thread(() -> {
+           try {
+               MasterApi masterApi = new MasterApi(port);
+               try {
+                   worker.setStoragePort(masterApi.introduce(workerServer.getServer().port, id));
+               } catch (InterruptedException e) {
+                   throw new RuntimeException(e);
+               }
+           } catch (IOException e) {
+               throw new RuntimeException(e);
+           }
+       }).start();
 
 
     }

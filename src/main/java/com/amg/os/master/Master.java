@@ -2,6 +2,8 @@ package com.amg.os.master;
 
 import com.amg.os.DeadLockMode;
 import com.amg.os.SchedulingMode;
+import com.amg.os.task.TaskBuilder;
+import com.amg.os.task.TaskContext;
 import com.amg.os.util.process.Program;
 import com.amg.os.util.storage.StorageApi;
 import com.amg.os.util.storage.StorageProcess;
@@ -10,6 +12,9 @@ import com.amg.os.util.worker.WorkerApi;
 import com.amg.os.util.worker.WorkerProcess;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.StringJoiner;
 
 import static java.lang.Thread.sleep;
 
@@ -18,50 +23,99 @@ public class Master {
     int jobs_n;
     SchedulingMode schedulingMode;
     DeadLockMode deadLockMode;
-    int storagePort;
-    int[] StorageData;
+    public static int storagePort;
+    public static int masterPort;
+    int[] storageData;
     StorageApi storageApi;
-    WorkerApi[] workerApis;
+    public static LinkedList<TaskContext> taskContexts;
 
-    public Master(int workers_n, int jobs_n, SchedulingMode schedulingMode, DeadLockMode deadLockMode, int storagePort, int[] storageData) {
+    public static WorkerApi[] workerApis;
+    public boolean jobsDone = false;
+
+    public Master() {
+    }
+
+    public Master(int workers_n, int jobs_n, SchedulingMode schedulingMode, DeadLockMode deadLockMode, int[] storageData) {
         this.workers_n = workers_n;
         this.jobs_n = jobs_n;
         this.schedulingMode = schedulingMode;
         this.deadLockMode = deadLockMode;
-        this.storagePort = storagePort;
-        StorageData = storageData;
-    workerApis=new WorkerApi[workers_n];
+        this.storageData = storageData;
+        workerApis = new WorkerApi[workers_n];
+        taskContexts = new LinkedList<>();
     }
+public TaskContext addJob(String jobString){
+        TaskContext taskContext=new TaskBuilder(jobString).getContext();
+    taskContexts.add(taskContext);
+    return taskContext;
+
+}
     public void initialize() throws IOException {
-        Program storageProgram=new Program(StorageProcess.class,true).addArgument(String.valueOf(9089)).addArgument("1 2 3 4 5");
+
+        StringJoiner dataString=new StringJoiner(" ");
+        for (int i:storageData
+             ) {
+            dataString.add(String.valueOf(i));
+        }
+
+        Program storageProgram = new Program(StorageProcess.class, true).addArgument(String.valueOf(masterPort)).addArgument(dataString.toString());
         storageProgram.run();
-        System.out.println("storage started on port: "+storagePort);
         try {
-            sleep(100);
+            sleep(200);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        for(int i=0;i<workers_n;i++){
-            Program program=new Program(WorkerProcess.class,true).addArgument(String.valueOf(9040+i)).addArgument(String.valueOf(i));
+        for (int i = 0; i < workers_n; i++) {
+            Program program = new Program(WorkerProcess.class, true).addArgument(String.valueOf(masterPort)).addArgument(String.valueOf(i));
             try {
                 program.run();
-                System.out.println("worker "+i+" started on port: "+(9040+i));
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-//            try {
-//                workerApis[i]=new WorkerApi(9090+i);
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
         }
 
+    }
+
+    public void start() {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                while (!jobsDone) {
+                    switch (schedulingMode) {
+                        case FCFS -> {
+                            for (TaskContext taskContext : taskContexts) {
+                                if (taskContext.isInUse()) continue;
+                                WorkerApi worker = findFreeWorker();
+                                if (worker == null) continue;
+                                worker.setWorking(true);
+                                taskContext.setInUse(true);
+                                new Thread(() -> {
+                                    try {
+                                        System.out.println(worker.run(taskContext));
+                                    } catch (InterruptedException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }).start();
+
+                            }
+
+                        }
+                    }
+                }
 
 
-
-
-
+            }
+        };
+        new Thread(runnable).start();
 
     }
+
+    public WorkerApi findFreeWorker() {
+        for (WorkerApi worker : workerApis) {
+            if (!worker.isWorking()) return worker;
+        }
+        return null;
+    }
 }
+

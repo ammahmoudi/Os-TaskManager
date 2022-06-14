@@ -1,9 +1,15 @@
 package com.amg.os.util.worker;
 
+import com.amg.os.task.Task;
+import com.amg.os.task.TaskContext;
+import com.amg.os.task.TaskRunner;
 import com.amg.os.util.network.connection.Connection;
 import com.amg.os.util.network.server.AbstractServer;
+import com.amg.os.util.storage.StorageApi;
 
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +41,8 @@ public class WorkerServer extends AbstractServer {
 
         switch (request) {
             case RUN:
+                handleRun(connection);
+
 
                 break;
 
@@ -46,7 +54,30 @@ public class WorkerServer extends AbstractServer {
 
         }
     }
+private void handleRun(Connection connection){
+    TaskContext taskContext=connection.readObject();
+     System.out.println(Arrays.toString(taskContext.indices));
+    System.out.println(Arrays.toString(taskContext.sleeps));
+    if( worker.getCurrentContext()==null) {
+    //    System.out.println(taskContext.getNextSleep());
+        if (worker.getStorageApi() == null) {
+            try {
+                worker.setStorageApi(new StorageApi(worker.getStoragePort()));
 
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        worker.setCurrentContext(taskContext);
+     //   worker.getCurrentTask().start();
+        TaskRunner taskRunner=new TaskRunner(worker.getStoragePort());
+        taskRunner.runTask(worker.getCurrentContext());
+        connection.send(worker.getCurrentContext().getResult());
+
+
+
+    }
+}
     private void handleObtain(Connection connection) {
 //        int index = Integer.parseInt(connection.receive());
 //        int id = Integer.parseInt(connection.receive());

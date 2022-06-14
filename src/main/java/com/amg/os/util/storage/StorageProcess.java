@@ -1,5 +1,4 @@
 package com.amg.os.util.storage;
-
 import com.amg.os.App;
 import com.amg.os.controllers.StorageController;
 import javafx.application.Application;
@@ -7,11 +6,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.util.Arrays;
 
-import static javafx.application.Application.launch;
 
 public class StorageProcess extends Application {
 
@@ -26,8 +23,8 @@ public class StorageProcess extends Application {
         Scene scene = new Scene(root);
         stage.setTitle("Storage!");
         stage.setScene(scene);
-
         stage.show();
+
         System.out.println(port+" "+Arrays.toString(memoryValues));
         try {
             storageController.initializeValues(port, memoryValues);

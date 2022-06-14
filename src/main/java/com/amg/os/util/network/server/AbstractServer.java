@@ -3,7 +3,8 @@ package com.amg.os.util.network.server;
 
 import com.amg.os.util.network.connection.Connection;
 
-public abstract class AbstractServer {
+public abstract class
+AbstractServer {
     private final Server server;
 
     protected AbstractServer() {
@@ -15,4 +16,8 @@ public abstract class AbstractServer {
     }
 
     public abstract void acceptConnection(Connection connection);
+
+    public Server getServer() {
+        return server;
+    }
 }

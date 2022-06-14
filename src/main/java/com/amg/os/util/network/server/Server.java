@@ -21,6 +21,7 @@ import com.amg.os.util.network.connection.Connection;
  *  </pre>
  */
 public class Server {
+   public int port;
 
     private final Consumer<Connection> onAccept;
 
@@ -32,9 +33,13 @@ public class Server {
     }
 
     public void listen(int port) {
+
         new Thread(() -> {
             try (ServerSocket server = new ServerSocket(port)){
+                this.port=server.getLocalPort();
                 listen(server);
+
+
             } catch (Exception e) {
             }
         }).start();
@@ -42,6 +47,9 @@ public class Server {
 
     private void listen(ServerSocket server) throws IOException {
         System.out.println("listening on port:"+server.getLocalPort());
+        this.port=server.getLocalPort();
+
+
         while (!server.isClosed()) {
             Socket socket = server.accept();
             System.out.println("socket accepted");

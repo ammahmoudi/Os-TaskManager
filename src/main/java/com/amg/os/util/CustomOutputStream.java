@@ -2,6 +2,7 @@ package com.amg.os.util;//package name
 
 //imports
 
+import javafx.application.Platform;
 import javafx.scene.control.TextArea;
 
 import java.io.IOException;
@@ -16,6 +17,12 @@ public class CustomOutputStream extends OutputStream {
 
     @Override
     public void write(int b) throws IOException {
-        terminal.appendText( String.valueOf((char) b));
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                terminal.appendText( String.valueOf((char) b));
+            }
+        });
+
     }
 }

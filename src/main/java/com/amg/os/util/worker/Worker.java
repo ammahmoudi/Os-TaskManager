@@ -1,16 +1,31 @@
 package com.amg.os.util.worker;
 
+
 import com.amg.os.task.Task;
+import com.amg.os.task.TaskContext;
+import com.amg.os.util.storage.StorageApi;
 
 public class Worker {
     int id;
     int port;
-    Task currentTask;
+
+    int storagePort;
+    StorageApi storageApi;
+TaskContext currentContext;
+
+    public StorageApi getStorageApi() {
+        return storageApi;
+    }
+
+    public void setStorageApi(StorageApi storageApi) {
+        this.storageApi = storageApi;
+    }
 
     public Worker(int id, int port) {
         this.id = id;
         this.port = port;
     }
+
     public Worker() {
 
     }
@@ -31,11 +46,19 @@ public class Worker {
         this.port = port;
     }
 
-    public Task getCurrentTask() {
-        return currentTask;
+    public int getStoragePort() {
+        return storagePort;
     }
 
-    public void setCurrentTask(Task currentTask) {
-        this.currentTask = currentTask;
+    public void setStoragePort(int storagePort) {
+        this.storagePort = storagePort;
+    }
+
+    public TaskContext getCurrentContext() {
+        return currentContext;
+    }
+
+    public void setCurrentContext(TaskContext currentContext) {
+        this.currentContext = currentContext;
     }
 }

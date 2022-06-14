@@ -8,7 +8,7 @@ import java.util.concurrent.Semaphore;
 public class Storage {
     private final Map<Integer, Integer> data;   // index, value
     private Map<Integer, Integer> lockOwner; // index, owner
-
+private int port;
     private final Map<Integer, Semaphore> locks;
 
     public Storage() {
@@ -44,5 +44,14 @@ public class Storage {
             locks.get(index).release();
             System.out.println(id+ "released lock for "+index);
         }
+
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 }

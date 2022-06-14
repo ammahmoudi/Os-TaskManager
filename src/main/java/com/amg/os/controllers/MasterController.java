@@ -3,6 +3,8 @@ package com.amg.os.controllers;
 import com.amg.os.DeadLockMode;
 import com.amg.os.SchedulingMode;
 import com.amg.os.master.Master;
+import com.amg.os.master.MasterApi;
+import com.amg.os.master.MasterServer;
 import com.amg.os.util.CustomOutputStream;
 import com.amg.os.util.storage.Storage;
 import com.amg.os.util.storage.StorageServer;
@@ -26,17 +28,22 @@ public class MasterController {
 
     public static TextArea MasterConsole;
     public Master master;
+    public MasterServer masterServer;
 
 
-    public void initializeValues() throws IOException {
-
+    public void initializeValues() throws IOException, InterruptedException {
         MasterConsole = console;
         PrintStream printStream = new PrintStream(new CustomOutputStream(MasterConsole));
         System.setOut(printStream);
         System.setErr(printStream);
-        master = new Master(4, 4, SchedulingMode.FCFS, DeadLockMode.NONE, 9089, new int[]{1, 2, 3, 4, 5});
+        master = new Master(1, 1, SchedulingMode.FCFS, DeadLockMode.NONE, new int[]{1, 2, 3, 4, 5});
+        masterServer = new MasterServer(master);
+        masterServer.listen(0);
+        Thread.sleep(200);
+        Master.masterPort = masterServer.getServer().port;
+        master.addJob("100 1 100 0 200 3");
         master.initialize();
-        System.out.println("initialized");
+        System.out.println("Master initialized");
 
 
     }

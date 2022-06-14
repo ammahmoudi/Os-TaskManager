@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class StorageTest {
     public static void main(String[] args) throws IOException, InterruptedException {
-        //new StorageServer().listen(90);
+        new StorageServer().listen(9087);
 
         StorageApi storage = new StorageApi(9087);
 
