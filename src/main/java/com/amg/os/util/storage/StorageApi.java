@@ -38,8 +38,18 @@ public class StorageApi {
         return getStorageResponseTask.get();
     }
 
-    public void release() {
-        /* TODO */
+    public int release(int index, int id) throws InterruptedException {
+        connection.send(StorageRequest.RELEASE);
+        connection.send(index);
+        connection.send(id);
+        try {
+            return awaitStorageResponse();
+        } catch (InterruptedException e) {
+            connection.send(StorageRequest.CANCEL);
+            throw e;
+        } catch (ExecutionException e) {
+            return -1;
+        }
     }
 
     public void interrupt() {

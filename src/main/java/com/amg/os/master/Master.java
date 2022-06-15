@@ -113,7 +113,7 @@ public TaskContext addJob(String jobString){
 
     public WorkerApi findFreeWorker() {
         for (WorkerApi worker : workerApis) {
-            if (!worker.isWorking()) return worker;
+            if (worker!=null&&!worker.isWorking()) return worker;
         }
         return null;
     }

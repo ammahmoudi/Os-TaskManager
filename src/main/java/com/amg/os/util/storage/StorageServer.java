@@ -35,21 +35,22 @@ public class StorageServer extends AbstractServer {
 
         switch (request) {
             case OBTAIN:
-            handleObtain(connection);
-            break;
+                handleObtain(connection);
+                break;
 
             case RELEASE:
-            // TODO
-            // storage.release(index, id);
-            break;
+                // TODO
+                handleRelease(connection);
+                // storage.release(index, id);
+                break;
 
             case CANCEL:
-            obtainThreads.get(connection).interrupt();
-            break;
+                obtainThreads.get(connection).interrupt();
+                break;
 
             case WRITE:
-            // TODO
-            break;
+                // TODO
+                break;
         }
     }
 
@@ -60,9 +61,21 @@ public class StorageServer extends AbstractServer {
             try {
                 int value = storage.obtain(index, id);
                 connection.send(value);
-            } catch (InterruptedException e) { }
+            } catch (InterruptedException e) {
+            }
         });
         obtainThreads.put(connection, thread);
+        thread.start();
+    }
+
+    private void handleRelease(Connection connection) {
+        int index = Integer.parseInt(connection.receive());
+        int id = Integer.parseInt(connection.receive());
+        Thread thread = new Thread(() -> {
+            storage.release(index, id);
+            connection.send(1);
+        });
+        //obtainThreads.remove(connection)
         thread.start();
     }
 }

@@ -26,9 +26,12 @@ public class Task extends  Thread
         } catch (InterruptedException e) {
             System.out.println("interrupted in task");
             context.setInUse(false);
+            System.out.println("lock released");
             lock.release();
             interrupt();
         }
+        System.out.println("lock released");
+        lock.release();
         this.interrupt();
     }
 
@@ -50,7 +53,7 @@ public class Task extends  Thread
     private void doRead() throws InterruptedException {
         Integer readIndex = context.getNextReadIndex();
 
-        System.out.println("reading index " + readIndex);
+        System.out.println("reading index " + context.indices[readIndex]);
         try {
             context.setCurrentSum(context.getCurrentSum() + storage.obtain(context.indices[readIndex], context.getId()));
             context.setLastReadAttempt(context.getLastIndicesIndex()+1);
@@ -59,12 +62,14 @@ public class Task extends  Thread
             context.setLastReadAttempt(readIndex);
             throw e;
         }
+        storage.release(context.indices[readIndex],context.getId());
 
     }
 
     private boolean isFinished() {
         if (context.lastIndicesIndex == context.indices.length - 1) {
             context.setDone(true);
+            System.out.println("job is finished");
             return true;
         }
         return false;
@@ -74,6 +79,7 @@ public class Task extends  Thread
        interrupt();
         try {
             lock.acquire();
+            System.out.println("lock acquired");
             context.setInUse(true);
         } catch (InterruptedException e) {
         }
