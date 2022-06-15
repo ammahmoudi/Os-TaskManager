@@ -13,6 +13,7 @@ import com.amg.os.util.worker.WorkerProcess;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.StringJoiner;
 
@@ -85,6 +86,31 @@ public class Master {
                 switch (schedulingMode) {
                     case FCFS -> {
                      //   System.out.println("start handling jobs in FCFS");
+                        for (TaskContext taskContext : taskContexts) {
+                            if (taskContext.isInUse() || taskContext.isDone()) continue;
+                            WorkerApi worker = findFreeWorker();
+
+                            if (worker == null) continue;
+                            System.out.println("worker " + worker.getId() + " gets job " + taskContext.getId());
+                            worker.setWorking(true);
+                            taskContext.setInUse(true);
+                            new Thread(() -> {
+                                try {
+                                    taskContext.setCurrentSum(Integer.parseInt(worker.run(taskContext)));
+                                    taskContext.setDone(true);
+                                    worker.setWorking(false);
+                                    taskContext.setInUse(false);
+                                    System.out.println("job "+taskContext.getId()+" has been done by worker "+worker.getId()+" resulting "+taskContext.getCurrentSum());
+                                } catch (InterruptedException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }).start();
+
+                        }
+
+                    }
+                    case SJF -> {
+                        taskContexts.sort(Comparator.comparing(TaskContext::getTotalEstimatedTime));
                         for (TaskContext taskContext : taskContexts) {
                             if (taskContext.isInUse() || taskContext.isDone()) continue;
                             WorkerApi worker = findFreeWorker();

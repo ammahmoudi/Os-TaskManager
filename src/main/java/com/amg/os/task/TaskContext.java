@@ -56,7 +56,13 @@ public class TaskContext implements Serializable {
         if (lastIndicesIndex > indices.length - 2) return null;
         return lastIndicesIndex + 1;
     }
-
+public int getTotalEstimatedTime(){
+        int total=0;
+        for(int i:sleeps){
+            total+=i;
+        }
+        return total;
+}
     public int getId() {
         return id;
     }
