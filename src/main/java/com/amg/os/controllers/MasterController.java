@@ -37,6 +37,7 @@ public class MasterController {
         System.setOut(printStream);
         System.setErr(printStream);
         master = new Master(1, 2, SchedulingMode.SJF, DeadLockMode.NONE, new int[]{1, 2, 3, 4, 5});
+        master.setTimeQuantum(50);
         masterServer = new MasterServer(master);
         masterServer.listen(0);
         Thread.sleep(200);

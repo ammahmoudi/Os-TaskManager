@@ -20,37 +20,38 @@ public class Connection {
 
     private Thread listenThread;
 
-    /** 
-     * constructor used the server 
-     * 
+    /**
+     * constructor used the server
+     *
      * @param socket port of the socket server accepting new connections
      * @throws IOException
      */
     public Connection(Socket socket) throws IOException {
         in = new Scanner(socket.getInputStream());
         out = new PrintStream(socket.getOutputStream());
-        
+
         serializer = new Serializer();
         deserializer = new Deserializer();
     }
-    
-    /** 
+
+    /**
      * constructor used by the clients
-     * 
+     *
      * @param port port of the tcp server to connect to
      * @throws IOException
      */
     public Connection(int port) throws IOException {
         this(
-            new Socket("localhost", port)
+                new Socket("localhost", port)
         );
     }
 
     public void send(String message) {
 
         out.println(message);
-
-        System.out.println("sending:[ "+message+" ]");
+        if (message.length() > 50) System.out.println("sending object");
+        else
+            System.out.println("sending:[ " + message + " ]");
     }
 
     public void send(Object obj) {
@@ -58,22 +59,25 @@ public class Connection {
     }
 
     /**
-     *  returns a new message from server (if available),
-     *  otherwise blocks
+     * returns a new message from server (if available),
+     * otherwise blocks
      */
     public String receive() {
-        if (in.hasNextLine()){
-            String string=in.nextLine();
-          //  if(string.length()<=20){
-            System.out.println("receiving:[ "+string+" ]");
-            return string;
-        }
+        if (in.hasNextLine()) {
+            String string = in.nextLine();
+            if (string.length() < 50)
+                System.out.println("receiving:[ " + string + " ]");
+            else System.out.println("receiving object");
+
+
+        return string;
+    }
         return null;
     }
 
     /**
-     *  @return true if there is new message
-     *  @apiNote This method may block for input
+     * @return true if there is new message
+     * @apiNote This method may block for input
      */
     public boolean hasNextLine() {
         return in.hasNextLine();
@@ -87,7 +91,7 @@ public class Connection {
         return (T) deserializer.deserialize(receive());
     }
 
-    /** 
+    /**
      * closes connection.
      * notice this may be the only way to cancel the wait for nextLine or hasNextLine
      */
@@ -97,12 +101,12 @@ public class Connection {
     }
 
     /**
-     *  an alternative way to receive message.
-     * 
-     *  catches the next message received by the connection and passes it to a callback
-     * 
-     *  @param onReceive called everytime connection recevies a message
-     *  @apiNote warning: either use nextLine or listen
+     * an alternative way to receive message.
+     * <p>
+     * catches the next message received by the connection and passes it to a callback
+     *
+     * @param onReceive called everytime connection recevies a message
+     * @apiNote warning: either use nextLine or listen
      */
     public void listen(Consumer<String> onReceive) {
         listenThread = new Thread(() -> {

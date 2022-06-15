@@ -61,7 +61,7 @@ private void handleRun(Connection connection){
         worker.setCurrentContext(taskContext);
         TaskRunner taskRunner=new TaskRunner(worker.getStoragePort());
         taskRunner.runTask(worker.getCurrentContext());
-        connection.send(worker.getCurrentContext().getResult());
+        connection.sendObject(worker.getCurrentContext());
 
 
 

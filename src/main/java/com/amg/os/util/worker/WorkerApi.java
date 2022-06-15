@@ -18,11 +18,11 @@ public class WorkerApi {
         connection = new Connection(WorkerPort);
     }
 
-    public String run(TaskContext taskContext) throws InterruptedException {
+    public TaskContext run(TaskContext taskContext) throws InterruptedException {
         connection.send(WorkerRequest.RUN);
         connection.sendObject(taskContext);
         try {
-            return awaitWorkerResponse();
+            return (TaskContext) awaitWorkerResponseObject();
         } catch (InterruptedException e) {
             connection.send(WorkerRequest.CANCEL);
             throw e;
@@ -31,7 +31,7 @@ public class WorkerApi {
         }
     }
 
-    private String awaitWorkerResponse() throws InterruptedException, ExecutionException {
+    private String awaitWorkerResponseString() throws InterruptedException, ExecutionException {
         FutureTask<String> getWorkerResponseTask = new FutureTask<>(
                 connection::receive
         );
@@ -39,7 +39,14 @@ public class WorkerApi {
 
         return getWorkerResponseTask.get();
     }
+    private Object awaitWorkerResponseObject() throws InterruptedException, ExecutionException {
+        FutureTask<Object> getWorkerResponseTask = new FutureTask<>(
+                connection::readObject
+        );
+        Executors.newFixedThreadPool(1).execute(getWorkerResponseTask);
 
+        return getWorkerResponseTask.get();
+    }
     public void release() {
         /* TODO */
     }

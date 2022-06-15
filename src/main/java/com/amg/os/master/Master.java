@@ -32,6 +32,7 @@ public class Master {
 
     public static WorkerApi[] workerApis;
     public boolean jobsDone = false;
+    public int timeQuantum;
 
     public Master() {
     }
@@ -86,53 +87,56 @@ public class Master {
                 switch (schedulingMode) {
                     case FCFS -> {
                      //   System.out.println("start handling jobs in FCFS");
-                        for (TaskContext taskContext : taskContexts) {
-                            if (taskContext.isInUse() || taskContext.isDone()) continue;
+                        for (int i = 0; i < taskContexts.size(); i++) {
+                            final TaskContext[] taskContext = {taskContexts.get(i)};
+                            if (taskContext[0].isInUse() || taskContext[0].isDone()) continue;
                             WorkerApi worker = findFreeWorker();
 
                             if (worker == null) continue;
-                            System.out.println("worker " + worker.getId() + " gets job " + taskContext.getId());
+                            System.out.println("worker " + worker.getId() + " gets job " + taskContext[0].getId());
                             worker.setWorking(true);
-                            taskContext.setInUse(true);
+                            taskContext[0].setInUse(true);
                             new Thread(() -> {
                                 try {
-                                    taskContext.setCurrentSum(Integer.parseInt(worker.run(taskContext)));
-                                    taskContext.setDone(true);
-                                    worker.setWorking(false);
-                                    taskContext.setInUse(false);
-                                    System.out.println("job "+taskContext.getId()+" has been done by worker "+worker.getId()+" resulting "+taskContext.getCurrentSum());
+                                    taskContext[0] = worker.run(taskContext[0]);
                                 } catch (InterruptedException e) {
                                     throw new RuntimeException(e);
                                 }
-                            }).start();
+                                worker.setWorking(false);
+                                System.out.println("job " + taskContext[0].getId() + " has been done by worker " + worker.getId() + " resulting " + taskContext[0].getCurrentSum());
+
+                        }).start();
+
 
                         }
 
                     }
                     case SJF -> {
                         taskContexts.sort(Comparator.comparing(TaskContext::getTotalEstimatedTime));
-                        for (TaskContext taskContext : taskContexts) {
-                            if (taskContext.isInUse() || taskContext.isDone()) continue;
+                        for (int i = 0; i < taskContexts.size(); i++) {
+                            final TaskContext[] taskContext = {taskContexts.get(i)};
+                            if (taskContext[0].isInUse() || taskContext[0].isDone()) continue;
                             WorkerApi worker = findFreeWorker();
 
                             if (worker == null) continue;
-                            System.out.println("worker " + worker.getId() + " gets job " + taskContext.getId());
+                            System.out.println("worker " + worker.getId() + " gets job " + taskContext[0].getId());
                             worker.setWorking(true);
-                            taskContext.setInUse(true);
+                            taskContext[0].setInUse(true);
                             new Thread(() -> {
                                 try {
-                                    taskContext.setCurrentSum(Integer.parseInt(worker.run(taskContext)));
-                                    taskContext.setDone(true);
-                                    worker.setWorking(false);
-                                    taskContext.setInUse(false);
-                                    System.out.println("job "+taskContext.getId()+" has been done by worker "+worker.getId()+" resulting "+taskContext.getCurrentSum());
+                                    taskContext[0] = worker.run(taskContext[0]);
                                 } catch (InterruptedException e) {
                                     throw new RuntimeException(e);
                                 }
+                                worker.setWorking(false);
+                                System.out.println("job " + taskContext[0].getId() + " has been done by worker " + worker.getId() + " resulting " + taskContext[0].getCurrentSum());
+
                             }).start();
 
                         }
 
+                    }
+                    case RR -> {
                     }
                 }
             }
@@ -148,6 +152,14 @@ public class Master {
             if (worker != null && !worker.isWorking()) return worker;
         }
         return null;
+    }
+
+    public int getTimeQuantum() {
+        return timeQuantum;
+    }
+
+    public void setTimeQuantum(int timeQuantum) {
+        this.timeQuantum = timeQuantum;
     }
 }
 
