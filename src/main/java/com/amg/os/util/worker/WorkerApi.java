@@ -11,29 +11,16 @@ import java.util.concurrent.FutureTask;
 
 public class WorkerApi {
     private final Connection connection;
+    private int id=-1;
     private boolean isWorking;
 
     public WorkerApi(int WorkerPort) throws IOException {
         connection = new Connection(WorkerPort);
     }
 
-//    public int run(int index, int id) throws InterruptedException {
-//        connection.send(WorkerRequest.RUN);
-//        connection.send(index);
-//        connection.send(id);
-//        try {
-//            return awaitWorkerResponse();
-//        } catch (InterruptedException e) {
-//            connection.send(WorkerRequest.CANCEL);
-//            throw e;
-//        } catch (ExecutionException e) {
-//            return -1;
-//        }
-//    }
     public String run(TaskContext taskContext) throws InterruptedException {
         connection.send(WorkerRequest.RUN);
         connection.sendObject(taskContext);
-       // connection.send();
         try {
             return awaitWorkerResponse();
         } catch (InterruptedException e) {
@@ -67,5 +54,13 @@ public class WorkerApi {
 
     public void setWorking(boolean working) {
         isWorking = working;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

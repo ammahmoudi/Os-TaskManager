@@ -43,7 +43,6 @@ public class WorkerServer extends AbstractServer {
             case RUN:
                 handleRun(connection);
 
-
                 break;
 
 
@@ -56,20 +55,10 @@ public class WorkerServer extends AbstractServer {
     }
 private void handleRun(Connection connection){
     TaskContext taskContext=connection.readObject();
-     System.out.println(Arrays.toString(taskContext.indices));
-    System.out.println(Arrays.toString(taskContext.sleeps));
-    if( worker.getCurrentContext()==null) {
-    //    System.out.println(taskContext.getNextSleep());
-        if (worker.getStorageApi() == null) {
-            try {
-                worker.setStorageApi(new StorageApi(worker.getStoragePort()));
+     System.out.println("Running job with indices  "+ Arrays.toString(taskContext.indices)+" and sleeps "+Arrays.toString(taskContext.sleeps));
 
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+    if( worker.getCurrentContext()==null||worker.getCurrentContext().isDone()) {
         worker.setCurrentContext(taskContext);
-     //   worker.getCurrentTask().start();
         TaskRunner taskRunner=new TaskRunner(worker.getStoragePort());
         taskRunner.runTask(worker.getCurrentContext());
         connection.send(worker.getCurrentContext().getResult());
@@ -78,16 +67,5 @@ private void handleRun(Connection connection){
 
     }
 }
-    private void handleObtain(Connection connection) {
-//        int index = Integer.parseInt(connection.receive());
-//        int id = Integer.parseInt(connection.receive());
-//        Thread thread = new Thread(() -> {
-//            try {
-//                int value = storage.obtain(index, id);
-//                connection.send(value);
-//            } catch (InterruptedException e) { }
-//        });
-//        obtainThreads.put(connection, thread);
-//        thread.start();
-    }
+
 }

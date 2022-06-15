@@ -44,17 +44,19 @@ public class Master {
         workerApis = new WorkerApi[workers_n];
         taskContexts = new LinkedList<>();
     }
-public TaskContext addJob(String jobString){
-        TaskContext taskContext=new TaskBuilder(jobString).getContext();
-    taskContexts.add(taskContext);
-    return taskContext;
 
-}
+    public TaskContext addJob(String jobString) {
+        TaskContext taskContext = new TaskBuilder(jobString).getContext();
+        taskContexts.add(taskContext);
+        return taskContext;
+
+    }
+
     public void initialize() throws IOException {
 
-        StringJoiner dataString=new StringJoiner(" ");
-        for (int i:storageData
-             ) {
+        StringJoiner dataString = new StringJoiner(" ");
+        for (int i : storageData
+        ) {
             dataString.add(String.valueOf(i));
         }
 
@@ -78,34 +80,38 @@ public TaskContext addJob(String jobString){
     }
 
     public void start() {
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                while (!jobsDone) {
-                    switch (schedulingMode) {
-                        case FCFS -> {
-                            for (TaskContext taskContext : taskContexts) {
-                                if (taskContext.isInUse()) continue;
-                                WorkerApi worker = findFreeWorker();
-                                if (worker == null) continue;
-                                worker.setWorking(true);
-                                taskContext.setInUse(true);
-                                new Thread(() -> {
-                                    try {
-                                        System.out.println(worker.run(taskContext));
-                                    } catch (InterruptedException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                }).start();
+        Runnable runnable = () -> {
+            while (!jobsDone) {
+                switch (schedulingMode) {
+                    case FCFS -> {
+                     //   System.out.println("start handling jobs in FCFS");
+                        for (TaskContext taskContext : taskContexts) {
+                            if (taskContext.isInUse() || taskContext.isDone()) continue;
+                            WorkerApi worker = findFreeWorker();
 
-                            }
+                            if (worker == null) continue;
+                            System.out.println("worker " + worker.getId() + " gets job " + taskContext.getId());
+                            worker.setWorking(true);
+                            taskContext.setInUse(true);
+                            new Thread(() -> {
+                                try {
+                                    taskContext.setCurrentSum(Integer.parseInt(worker.run(taskContext)));
+                                    taskContext.setDone(true);
+                                    worker.setWorking(false);
+                                    taskContext.setInUse(false);
+                                    System.out.println("job "+taskContext.getId()+" has been done by worker "+worker.getId()+" resulting "+taskContext.getCurrentSum());
+                                } catch (InterruptedException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }).start();
 
                         }
+
                     }
                 }
-
-
             }
+
+
         };
         new Thread(runnable).start();
 
@@ -113,7 +119,7 @@ public TaskContext addJob(String jobString){
 
     public WorkerApi findFreeWorker() {
         for (WorkerApi worker : workerApis) {
-            if (worker!=null&&!worker.isWorking()) return worker;
+            if (worker != null && !worker.isWorking()) return worker;
         }
         return null;
     }

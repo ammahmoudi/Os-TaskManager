@@ -52,14 +52,15 @@ public class MasterServer extends AbstractServer {
         int port = Integer.parseInt(connection.receive());
         int id = Integer.parseInt(connection.receive());
         Thread thread = new Thread(() -> {
-            System.out.println("worker " + id + " on port: " + port);
+            System.out.println("worker " + id + " started on on port: " + port);
             try {
                 Master.workerApis[id] = new WorkerApi(port);
+                Master.workerApis[id].setId(id);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
             connection.send(Master.storagePort);
-            if(id== master.jobs_n-1)master.start();
+            if(id== master.workers_n-1)master.start();
         });
         introductionThreads.put(connection, thread);
         thread.start();

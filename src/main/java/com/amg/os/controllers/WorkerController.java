@@ -39,6 +39,7 @@ public class WorkerController {
                MasterApi masterApi = new MasterApi(port);
                try {
                    worker.setStoragePort(masterApi.introduce(workerServer.getServer().port, id));
+                   System.out.println("storage port has been set to "+worker.getStoragePort());
                } catch (InterruptedException e) {
                    throw new RuntimeException(e);
                }
