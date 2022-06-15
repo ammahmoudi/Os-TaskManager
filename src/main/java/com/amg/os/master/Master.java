@@ -98,7 +98,7 @@ public class Master {
                             taskContext[0].setInUse(true);
                             new Thread(() -> {
                                 try {
-                                    taskContext[0] = worker.run(taskContext[0]);
+                                    taskContext[0] = (TaskContext) worker.run(taskContext[0]).getObject();
                                 } catch (InterruptedException e) {
                                     throw new RuntimeException(e);
                                 }
@@ -124,7 +124,7 @@ public class Master {
                             taskContext[0].setInUse(true);
                             new Thread(() -> {
                                 try {
-                                    taskContext[0] = worker.run(taskContext[0]);
+                                    taskContext[0] = (TaskContext) worker.run(taskContext[0]).getObject();
                                 } catch (InterruptedException e) {
                                     throw new RuntimeException(e);
                                 }

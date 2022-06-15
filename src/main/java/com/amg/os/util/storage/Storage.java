@@ -28,7 +28,7 @@ private int port;
     public int obtain(int index, int id) throws InterruptedException {
         if (lockOwner.getOrDefault(index, -1) != id) {
             locks.get(index).acquire();
-            System.out.println(id+ " acquired lock for "+index);
+            System.out.println(id+ " acquired lock for index "+index);
             lockOwner.put(index, id);
         }
         return data.get(index);
@@ -42,7 +42,7 @@ private int port;
     public synchronized void release(int index, int id) {
         if (lockOwner.get(index) == id) {
             locks.get(index).release();
-            System.out.println(id+ "released lock for "+index);
+            System.out.println(id+ " released lock for index "+index);
         }
 
     }

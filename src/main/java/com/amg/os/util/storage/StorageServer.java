@@ -3,6 +3,8 @@ package com.amg.os.util.storage;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.amg.os.request.Packet;
+import com.amg.os.request.PacketType;
 import com.amg.os.util.network.connection.Connection;
 import com.amg.os.util.network.server.AbstractServer;
 
@@ -31,16 +33,16 @@ public class StorageServer extends AbstractServer {
     }
 
     private void serverConnection(Connection connection) {
-        StorageRequest request = StorageRequest.valueOf(connection.receive());
+        Packet packet=connection.readObject();
 
-        switch (request) {
-            case OBTAIN:
-                handleObtain(connection);
+        switch (packet.getType()) {
+            case OBTAIN_MEMORY:
+                handleObtain(connection,packet);
                 break;
 
-            case RELEASE:
+            case RELEASE_MEMORY:
                 // TODO
-                handleRelease(connection);
+                handleRelease(connection,packet);
                 // storage.release(index, id);
                 break;
 
@@ -48,34 +50,34 @@ public class StorageServer extends AbstractServer {
                 obtainThreads.get(connection).interrupt();
                 break;
 
-            case WRITE:
+            case WRITE_MEMORY:
                 // TODO
                 break;
         }
     }
 
-    private void handleObtain(Connection connection) {
-        int index = Integer.parseInt(connection.receive());
-        int id = Integer.parseInt(connection.receive());
+    private void handleObtain(Connection connection,Packet packet) {
+        int index = Integer.parseInt(packet.getData());
+        int id = packet.getSenderId();
         Thread thread = new Thread(() -> {
             try {
                 int value = storage.obtain(index, id);
-                connection.send(value);
+                connection.sendObject(new Packet(-2, PacketType.OBTAIN_MEMORY,true,String.valueOf(value)));
             } catch (InterruptedException e) {
+                System.out.println("interrupted");
             }
         });
         obtainThreads.put(connection, thread);
         thread.start();
     }
 
-    private void handleRelease(Connection connection) {
-        int index = Integer.parseInt(connection.receive());
-        int id = Integer.parseInt(connection.receive());
+    private void handleRelease(Connection connection,Packet packet) {
+        int index = Integer.parseInt(packet.getData());
+        int id = packet.getSenderId();
         Thread thread = new Thread(() -> {
             storage.release(index, id);
-            connection.send(1);
+            connection.sendObject(new Packet(-2, PacketType.RELEASE_MEMORY,true,String.valueOf(id)));
         });
-        //obtainThreads.remove(connection)
         thread.start();
     }
 }

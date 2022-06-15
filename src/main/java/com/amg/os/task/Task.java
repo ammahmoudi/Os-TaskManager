@@ -55,7 +55,7 @@ public class Task extends  Thread
 
         System.out.println("reading index " + context.indices[readIndex]);
         try {
-            context.setCurrentSum(context.getCurrentSum() + storage.obtain(context.indices[readIndex], context.getId()));
+            context.setCurrentSum(context.getCurrentSum() + Integer.parseInt(storage.obtain(context.indices[readIndex], context.getId()).getData()));
             context.setLastReadAttempt(context.getLastIndicesIndex()+1);
 
         } catch (InterruptedException e) {

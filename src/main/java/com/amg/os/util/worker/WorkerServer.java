@@ -1,5 +1,7 @@
 package com.amg.os.util.worker;
 
+import com.amg.os.request.Packet;
+import com.amg.os.request.PacketType;
 import com.amg.os.task.Task;
 import com.amg.os.task.TaskContext;
 import com.amg.os.task.TaskRunner;
@@ -37,11 +39,11 @@ public class WorkerServer extends AbstractServer {
     }
 
     private void serverConnection(Connection connection) {
-        WorkerRequest request = WorkerRequest.valueOf(connection.receive());
+        Packet packet=connection.readObject();
 
-        switch (request) {
-            case RUN:
-                handleRun(connection);
+        switch (packet.getType()) {
+            case RUN_WORKER:
+                handleRun(connection,packet);
 
                 break;
 
@@ -53,15 +55,15 @@ public class WorkerServer extends AbstractServer {
 
         }
     }
-private void handleRun(Connection connection){
-    TaskContext taskContext=connection.readObject();
+private void handleRun(Connection connection,Packet packet){
+    TaskContext taskContext= (TaskContext) packet.getObject();
      System.out.println("Running job with indices  "+ Arrays.toString(taskContext.indices)+" and sleeps "+Arrays.toString(taskContext.sleeps));
 
     if( worker.getCurrentContext()==null||worker.getCurrentContext().isDone()) {
         worker.setCurrentContext(taskContext);
         TaskRunner taskRunner=new TaskRunner(worker.getStoragePort());
         taskRunner.runTask(worker.getCurrentContext());
-        connection.sendObject(worker.getCurrentContext());
+        connection.sendObject(new Packet(worker.getId(), PacketType.RUN_WORKER,true,worker.getCurrentContext()));
 
 
 

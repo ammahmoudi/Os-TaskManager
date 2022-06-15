@@ -36,14 +36,14 @@ public class MasterController {
         PrintStream printStream = new PrintStream(new CustomOutputStream(MasterConsole));
         System.setOut(printStream);
         System.setErr(printStream);
-        master = new Master(1, 2, SchedulingMode.SJF, DeadLockMode.NONE, new int[]{1, 2, 3, 4, 5});
+        master = new Master(1, 1, SchedulingMode.SJF, DeadLockMode.NONE, new int[]{1, 2, 3, 4, 5});
         master.setTimeQuantum(50);
         masterServer = new MasterServer(master);
         masterServer.listen(0);
         Thread.sleep(200);
         Master.masterPort = masterServer.getServer().port;
-        master.addJob("100 1 600 0 200 3");
-        master.addJob("100 2 100 0 200 4");
+        master.addJob("100 1");
+       // master.addJob("100 2 100 0 200 4");
         master.initialize();
         System.out.println("Master initialized");
 

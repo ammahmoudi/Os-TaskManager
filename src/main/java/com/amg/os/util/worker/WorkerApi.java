@@ -1,5 +1,7 @@
 package com.amg.os.util.worker;
 
+import com.amg.os.request.Packet;
+import com.amg.os.request.PacketType;
 import com.amg.os.task.TaskContext;
 import com.amg.os.util.network.connection.Connection;
 import com.amg.os.util.storage.StorageRequest;
@@ -18,13 +20,13 @@ public class WorkerApi {
         connection = new Connection(WorkerPort);
     }
 
-    public TaskContext run(TaskContext taskContext) throws InterruptedException {
-        connection.send(WorkerRequest.RUN);
-        connection.sendObject(taskContext);
+    public Packet run(TaskContext taskContext) throws InterruptedException {
+        Packet packet=new Packet(-1, PacketType.RUN_WORKER,false,taskContext);
+       connection.sendObject(packet);
         try {
-            return (TaskContext) awaitWorkerResponseObject();
+            return (Packet) awaitWorkerResponseObject();
         } catch (InterruptedException e) {
-            connection.send(WorkerRequest.CANCEL);
+            connection.sendObject(new Packet(-1, PacketType.CANCEL,false, ""));
             throw e;
         } catch (ExecutionException e) {
             return null;

@@ -1,5 +1,7 @@
 package com.amg.os.master;
 
+import com.amg.os.request.Packet;
+import com.amg.os.request.PacketType;
 import com.amg.os.util.network.connection.Connection;
 import com.amg.os.util.network.server.AbstractServer;
 import com.amg.os.util.worker.WorkerApi;
@@ -32,15 +34,15 @@ public class MasterServer extends AbstractServer {
     }
 
     private void serverConnection(Connection connection) {
-        String string = connection.receive();
-        if(string==null)return;
-        MasterRequest request = MasterRequest.valueOf(string);
-        switch (request) {
-            case INTRODUCE:
-                handleIntroduce(connection);
+        Packet packet = connection.readObject();
+        if(packet==null)return;
+
+        switch (packet.getType()) {
+            case INTRODUCE_WORKER:
+                handleWorkerIntroduction(connection,packet);
                 break;
-            case STORAGE:
-                handleStorageIntroduction(connection);
+            case INTRODUCE_STORAGE:
+                handleStorageIntroduction(connection,packet);
                 break;
             case CANCEL:
                 introductionThreads.get(connection).interrupt();
@@ -48,30 +50,31 @@ public class MasterServer extends AbstractServer {
         }
     }
 
-    private void handleIntroduce(Connection connection) {
-        int port = Integer.parseInt(connection.receive());
-        int id = Integer.parseInt(connection.receive());
+    private void handleWorkerIntroduction(Connection connection, Packet packet) {
+        int port = Integer.parseInt(packet.getData());
+        int id = packet.getSenderId();
         Thread thread = new Thread(() -> {
-            System.out.println("worker " + id + " started on on port: " + port);
+            System.out.println("worker " + id + " started on port: " + port);
             try {
                 Master.workerApis[id] = new WorkerApi(port);
                 Master.workerApis[id].setId(id);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            connection.send(Master.storagePort);
+            connection.sendObject(new Packet(-1, PacketType.INTRODUCE_WORKER,true,String.valueOf(Master.storagePort)));
             if(id== master.workers_n-1)master.start();
         });
         introductionThreads.put(connection, thread);
         thread.start();
     }
 
-    private void handleStorageIntroduction(Connection connection) {
-        int port = Integer.parseInt(connection.receive());
+    private void handleStorageIntroduction(Connection connection,Packet packet) {
+        int port = Integer.parseInt(packet.getData());
         Thread thread = new Thread(() -> {
             System.out.println("storage " + " on port: " + port);
             Master.storagePort=port;
-            connection.send("ok");
+            connection.sendObject(new Packet(-1, PacketType.INTRODUCE_STORAGE,true,"Introduced"));
+
         });
         introductionThreads.put(connection, thread);
         thread.start();

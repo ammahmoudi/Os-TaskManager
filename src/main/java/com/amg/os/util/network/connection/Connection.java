@@ -7,8 +7,9 @@ import java.net.Socket;
 import java.util.Scanner;
 import java.util.function.Consumer;
 
-import util.serialize.Deserializer;
-import util.serialize.Serializer;
+import com.amg.os.util.serialize.Deserializer;
+import com.amg.os.util.serialize.Serializer;
+
 
 public class Connection {
 
@@ -49,9 +50,8 @@ public class Connection {
     public void send(String message) {
 
         out.println(message);
-        if (message.length() > 50) System.out.println("sending object");
-        else
-            System.out.println("sending:[ " + message + " ]");
+        if (message.length() < 50) System.out.println("sending:[ " + message + " ]");
+
     }
 
     public void send(Object obj) {
@@ -67,7 +67,7 @@ public class Connection {
             String string = in.nextLine();
             if (string.length() < 50)
                 System.out.println("receiving:[ " + string + " ]");
-            else System.out.println("receiving object");
+           // else System.out.println("receiving object");
 
 
         return string;
@@ -84,11 +84,16 @@ public class Connection {
     }
 
     public void sendObject(Serializable object) {
+        System.out.println("[sent]: "+object);
         send(serializer.serialize(object));
     }
 
     public <T> T readObject() {
-        return (T) deserializer.deserialize(receive());
+        String s=receive();
+        if(s==null) return null;
+        T t=(T) deserializer.deserialize(s);
+        System.out.println("[received]: "+t);
+        return t;
     }
 
     /**

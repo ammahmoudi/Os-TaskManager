@@ -1,7 +1,8 @@
 package com.amg.os.master;
 
+import com.amg.os.request.Packet;
+import com.amg.os.request.PacketType;
 import com.amg.os.util.network.connection.Connection;
-import com.amg.os.util.storage.StorageRequest;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -16,38 +17,37 @@ public class MasterApi {
         connection = new Connection(masterPort);
     }
 
-    public int introduce(int port, int id) throws InterruptedException {
-        connection.send(MasterRequest.INTRODUCE);
-        connection.send(port);
-        connection.send(id);
+    public Packet introduceWorker(int port, int id) throws InterruptedException {
+        Packet packet = new Packet(id, PacketType.INTRODUCE_WORKER,false, String.valueOf(port));
+        connection.sendObject(packet);
         try {
             return awaitMasterResponse();
         } catch (InterruptedException e) {
-            connection.send(MasterRequest.CANCEL);
+            connection.sendObject(new Packet(id, PacketType.CANCEL,false, ""));
             throw e;
         } catch (ExecutionException e) {
-            return -1;
-        }
-    }
-    public int introduceStorage(int port) throws InterruptedException {
-        connection.send(MasterRequest.STORAGE);
-        connection.send(port);
-        try {
-            return awaitMasterResponse();
-        } catch (InterruptedException e) {
-            connection.send(MasterRequest.CANCEL);
-            throw e;
-        } catch (ExecutionException e) {
-            return -1;
+            return new Packet(-2,null,true,"");
         }
     }
 
-    private Integer awaitMasterResponse() throws InterruptedException, ExecutionException {
-        FutureTask<Integer> getMasterResponseTask = new FutureTask<>(
-            () -> Integer.parseInt(connection.receive())
+    public Packet introduceStorage(int port) throws InterruptedException {
+        Packet packet = new Packet(-2, PacketType.INTRODUCE_STORAGE,false, String.valueOf(port));
+        connection.sendObject(packet);
+        try {
+            return awaitMasterResponse();
+        } catch (InterruptedException e) {
+            connection.sendObject(new Packet(-2, PacketType.CANCEL,false, ""));
+            throw e;
+        } catch (ExecutionException e) {
+            return new Packet(-2,null,true,"");
+        }
+    }
+
+    private Packet awaitMasterResponse() throws InterruptedException, ExecutionException {
+        FutureTask<Packet> getMasterResponseTask = new FutureTask<>(
+                connection::readObject
         );
         Executors.newFixedThreadPool(1).execute(getMasterResponseTask);
-        
         return getMasterResponseTask.get();
     }
 

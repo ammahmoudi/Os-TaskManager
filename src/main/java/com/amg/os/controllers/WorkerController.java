@@ -2,8 +2,6 @@ package com.amg.os.controllers;
 
 import com.amg.os.master.MasterApi;
 import com.amg.os.util.CustomOutputStream;
-import com.amg.os.util.storage.Storage;
-import com.amg.os.util.storage.StorageServer;
 import com.amg.os.util.worker.Worker;
 import com.amg.os.util.worker.WorkerServer;
 import javafx.fxml.FXML;
@@ -38,7 +36,7 @@ public class WorkerController {
            try {
                MasterApi masterApi = new MasterApi(port);
                try {
-                   worker.setStoragePort(masterApi.introduce(workerServer.getServer().port, id));
+                   worker.setStoragePort(Integer.parseInt(masterApi.introduceWorker(workerServer.getServer().port, id).getData()));
                    System.out.println("storage port has been set to "+worker.getStoragePort());
                } catch (InterruptedException e) {
                    throw new RuntimeException(e);

@@ -5,6 +5,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
+import com.amg.os.master.Master;
+import com.amg.os.request.Packet;
+import com.amg.os.request.PacketType;
 import com.amg.os.util.network.connection.Connection;
 
 
@@ -15,40 +18,38 @@ public class StorageApi {
         connection = new Connection(storagePort);
     }
 
-    public int obtain(int index, int id) throws InterruptedException {
-        connection.send(StorageRequest.OBTAIN);
-        connection.send(index);
-        connection.send(id);
+    public Packet obtain(int index, int id) throws InterruptedException {
+        Packet packet=new Packet(id, PacketType.OBTAIN_MEMORY,false,String.valueOf(index));
+     connection.sendObject(packet);
         try {
             return awaitStorageResponse();
         } catch (InterruptedException e) {
-            connection.send(StorageRequest.CANCEL);
+            connection.sendObject(new Packet(id, PacketType.CANCEL,false, ""));
             throw e;
         } catch (ExecutionException e) {
-            return -1;
+            return new Packet(id,null,true,"");
         }
     }
 
-    private Integer awaitStorageResponse() throws InterruptedException, ExecutionException {
-        FutureTask<Integer> getStorageResponseTask = new FutureTask<>(
-            () -> Integer.parseInt(connection.receive())
+    private Packet awaitStorageResponse() throws InterruptedException, ExecutionException {
+        FutureTask<Packet> getStorageResponseTask = new FutureTask<>(
+                connection::readObject
         );
         Executors.newFixedThreadPool(1).execute(getStorageResponseTask);
         
         return getStorageResponseTask.get();
     }
 
-    public int release(int index, int id) throws InterruptedException {
-        connection.send(StorageRequest.RELEASE);
-        connection.send(index);
-        connection.send(id);
+    public Packet release(int index, int id) throws InterruptedException {
+        Packet packet=new Packet(id, PacketType.RELEASE_MEMORY,false,String.valueOf(index));
+        connection.sendObject(packet);
         try {
             return awaitStorageResponse();
         } catch (InterruptedException e) {
             connection.send(StorageRequest.CANCEL);
             throw e;
         } catch (ExecutionException e) {
-            return -1;
+            return new Packet(id,null,true,"");
         }
     }
 

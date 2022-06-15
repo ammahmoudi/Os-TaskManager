@@ -1,4 +1,4 @@
-package util.serialize;
+package com.amg.os.util.serialize;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
