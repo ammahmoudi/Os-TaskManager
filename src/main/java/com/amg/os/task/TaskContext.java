@@ -40,7 +40,7 @@ public class TaskContext implements Serializable {
         this.lastSleepIndex = index;
     }
 
-    public void setLastReadAttempt(int index) {
+    public void setLastReadAttemptIndex(int index) {
         lastIndicesIndex = index;
     }
 
@@ -55,6 +55,7 @@ public class TaskContext implements Serializable {
     }
 
     public Integer getNextReadIndex() {
+
         if (lastIndicesIndex > indices.length - 2) return null;
         return lastIndicesIndex + 1;
     }

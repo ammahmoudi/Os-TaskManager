@@ -3,7 +3,10 @@ package com.amg.os.task;
 import java.util.concurrent.Semaphore;
 
 import com.amg.os.util.storage.StorageApi;
-import util.time.Time;
+import com.amg.os.util.time.Time;
+
+
+import static java.lang.Math.abs;
 
 public class Task extends  Thread
 {
@@ -38,17 +41,21 @@ public class Task extends  Thread
 
     private void doSleep() throws InterruptedException {
         int startTime = Time.getNowMillis();
-        int timeToSleep = context.getNextSleep();
+      //  System.out.println("start: "+startTime);
+        Integer timeToSleep = context.getLastSleepDuration();
         System.out.println("sleep for " + timeToSleep);
 
         try {
             Thread.sleep(timeToSleep);
+            int stopTime = Time.getNowMillis();
             context.setLastSleepIndex(context.getLastSleepIndex()+1);
-            context.setTotalTimeSlept(context.getTotalTimeSlept()+timeToSleep);
+            context.setLastSleepDuration(context.sleeps[context.getLastSleepIndex()]);
+            context.setTotalTimeSlept(context.getTotalTimeSlept()+(stopTime-startTime));
         } catch (InterruptedException e) {
             int stopTime = Time.getNowMillis();
-            context.setLastSleepDuration(stopTime - startTime);
-            context.setTotalTimeSlept(context.getTotalTimeSlept()+context.getLastSleepDuration());
+          //  System.out.println("stop: "+stopTime);
+            context.setLastSleepDuration(context.getLastSleepDuration()-(stopTime-startTime));
+            context.setTotalTimeSlept(context.getTotalTimeSlept()+(stopTime-startTime));
          //   System.out.println("intrupt in sleep");
             throw e;
         }
@@ -60,10 +67,10 @@ public class Task extends  Thread
         System.out.println("reading index " + context.indices[readIndex]);
         try {
             context.setCurrentSum(context.getCurrentSum() + Integer.parseInt(storage.obtain(context.indices[readIndex], context.getId()).getData()));
-            context.setLastReadAttempt(context.getLastIndicesIndex()+1);
+            context.setLastReadAttemptIndex(readIndex);
 
         } catch (InterruptedException e) {
-            context.setLastReadAttempt(readIndex);
+            context.setLastReadAttemptIndex(readIndex-1);
             throw e;
         }
         storage.release(context.indices[readIndex],context.getId());

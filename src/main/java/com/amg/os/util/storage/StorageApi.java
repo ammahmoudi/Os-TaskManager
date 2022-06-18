@@ -24,7 +24,7 @@ public class StorageApi {
         try {
             return awaitStorageResponse();
         } catch (InterruptedException e) {
-            connection.sendObject(new Packet(id, PacketType.CANCEL,false, ""));
+            connection.sendObject(new Packet(id, PacketType.CANCEL,false, String.valueOf(index)));
             throw e;
         } catch (ExecutionException e) {
             return new Packet(id,null,true,"");

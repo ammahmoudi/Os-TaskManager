@@ -25,6 +25,7 @@ public class TaskBuilder {
         taskContext.sleeps=sleeps;
         taskContext.indices=indices;
         taskContext.id=id;
+        taskContext.setLastSleepDuration(taskContext.sleeps[0]);
         return taskContext;
     }
 }

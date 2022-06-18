@@ -65,7 +65,9 @@ public class StorageServer extends AbstractServer {
                 int value = storage.obtain(index, id);
                 connection.sendObject(new Packet(-2, PacketType.OBTAIN_MEMORY,true,String.valueOf(value)));
             } catch (InterruptedException e) {
-                System.out.println("interrupted");
+
+                System.out.println("interrupted in obtaining");
+                storage.release(index,id);
             }
         });
         obtainThreads.put(connection, thread);
