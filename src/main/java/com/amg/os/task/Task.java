@@ -24,13 +24,14 @@ public class Task extends  Thread
                 doRead();
             }
         } catch (InterruptedException e) {
-            System.out.println("interrupted in task");
+         //   System.out.println("interrupted in task");
             context.setInUse(false);
-            System.out.println("lock released");
+         //   System.out.println(context.totalTimeSlept);
+        //    System.out.println("lock released in catch");
             lock.release();
             interrupt();
         }
-        System.out.println("lock released");
+       // System.out.println("lock released after while");
         lock.release();
         this.interrupt();
     }
@@ -43,9 +44,12 @@ public class Task extends  Thread
         try {
             Thread.sleep(timeToSleep);
             context.setLastSleepIndex(context.getLastSleepIndex()+1);
+            context.setTotalTimeSlept(context.getTotalTimeSlept()+timeToSleep);
         } catch (InterruptedException e) {
             int stopTime = Time.getNowMillis();
             context.setLastSleepDuration(stopTime - startTime);
+            context.setTotalTimeSlept(context.getTotalTimeSlept()+context.getLastSleepDuration());
+         //   System.out.println("intrupt in sleep");
             throw e;
         }
     }
@@ -79,7 +83,7 @@ public class Task extends  Thread
        interrupt();
         try {
             lock.acquire();
-            System.out.println("lock acquired");
+       //     System.out.println("lock acquired in intrupttask");
             context.setInUse(true);
         } catch (InterruptedException e) {
         }

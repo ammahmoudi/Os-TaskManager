@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutionException;
 
 public class MasterController {
 
@@ -31,19 +32,19 @@ public class MasterController {
     public MasterServer masterServer;
 
 
-    public void initializeValues() throws IOException, InterruptedException {
+    public void initializeValues() throws IOException, InterruptedException, ExecutionException {
         MasterConsole = console;
         PrintStream printStream = new PrintStream(new CustomOutputStream(MasterConsole));
         System.setOut(printStream);
         System.setErr(printStream);
-        master = new Master(1, 1, SchedulingMode.SJF, DeadLockMode.NONE, new int[]{1, 2, 3, 4, 5});
-        master.setTimeQuantum(50);
+        master = new Master(2, 1, SchedulingMode.RR, DeadLockMode.NONE, new int[]{1, 2, 3, 4, 5});
+        master.setTimeQuantum(500);
         masterServer = new MasterServer(master);
         masterServer.listen(0);
         Thread.sleep(200);
         Master.masterPort = masterServer.getServer().port;
-        master.addJob("100 1");
-       // master.addJob("100 2 100 0 200 4");
+        master.addJob("1000 1 3000 2 5000 4");
+        master.addJob("1000 2 1000 0 2000 4");
         master.initialize();
         System.out.println("Master initialized");
 

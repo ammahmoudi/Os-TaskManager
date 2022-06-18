@@ -73,6 +73,7 @@ public class MasterServer extends AbstractServer {
         Thread thread = new Thread(() -> {
             System.out.println("storage " + " on port: " + port);
             Master.storagePort=port;
+            Master.lock.release();
             connection.sendObject(new Packet(-1, PacketType.INTRODUCE_STORAGE,true,"Introduced"));
 
         });

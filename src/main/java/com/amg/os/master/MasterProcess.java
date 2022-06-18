@@ -11,12 +11,13 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
 
 import static javafx.application.Application.launch;
 
 public class MasterProcess extends Application {
     @Override
-    public void start(Stage stage) throws IOException, InterruptedException {
+    public void start(Stage stage) throws IOException, InterruptedException, ExecutionException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("master-view.fxml"));
         Parent root=fxmlLoader.load();
         MasterController masterController =fxmlLoader.getController();

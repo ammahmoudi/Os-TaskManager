@@ -34,6 +34,7 @@ public class StorageServer extends AbstractServer {
 
     private void serverConnection(Connection connection) {
         Packet packet=connection.readObject();
+        if(packet!=null)
 
         switch (packet.getType()) {
             case OBTAIN_MEMORY:
@@ -41,9 +42,9 @@ public class StorageServer extends AbstractServer {
                 break;
 
             case RELEASE_MEMORY:
-                // TODO
+
                 handleRelease(connection,packet);
-                // storage.release(index, id);
+
                 break;
 
             case CANCEL:

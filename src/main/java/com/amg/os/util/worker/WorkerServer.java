@@ -39,35 +39,42 @@ public class WorkerServer extends AbstractServer {
     }
 
     private void serverConnection(Connection connection) {
-        Packet packet=connection.readObject();
-
-        switch (packet.getType()) {
-            case RUN_WORKER:
-                handleRun(connection,packet);
-
-                break;
-
-
-            case CANCEL:
-
-                break;
+        Packet packet = connection.readObject();
+        if (packet != null)
+            switch (packet.getType()) {
+                case RUN_WORKER:
+                    new Thread(() -> {
+                        handleRun(connection, packet);
+                    }).start();
 
 
-        }
+                    break;
+
+                case INTERRUPT_WORKER:
+                    if (worker.taskRunner != null) worker.taskRunner.interrupt();
+                    //   connection.sendObject(new Packet(worker.getId(), PacketType.INTERRUPT_WORKER, true, "int"));
+                    break;
+                case CANCEL:
+
+                    break;
+
+
+            }
     }
-private void handleRun(Connection connection,Packet packet){
-    TaskContext taskContext= (TaskContext) packet.getObject();
-     System.out.println("Running job with indices  "+ Arrays.toString(taskContext.indices)+" and sleeps "+Arrays.toString(taskContext.sleeps));
 
-    if( worker.getCurrentContext()==null||worker.getCurrentContext().isDone()) {
-        worker.setCurrentContext(taskContext);
-        TaskRunner taskRunner=new TaskRunner(worker.getStoragePort());
-        taskRunner.runTask(worker.getCurrentContext());
-        connection.sendObject(new Packet(worker.getId(), PacketType.RUN_WORKER,true,worker.getCurrentContext()));
+    private void handleRun(Connection connection, Packet packet) {
+        TaskContext taskContext = (TaskContext) packet.getObject();
+        System.out.println("Running job with indices  " + Arrays.toString(taskContext.indices) + " and sleeps " + Arrays.toString(taskContext.sleeps));
+
+
+            worker.setCurrentContext(taskContext);
+            worker.taskRunner = new TaskRunner(worker.getStoragePort());
+            worker.taskRunner.runTask(worker.getCurrentContext());
+            System.out.println(worker.getCurrentContext());
+            connection.sendObject(new Packet(worker.getId(), PacketType.RUN_WORKER, true, worker.getCurrentContext()));
 
 
 
     }
-}
 
 }

@@ -1,6 +1,8 @@
 package com.amg.os.task;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.StringJoiner;
 
 public class TaskContext implements Serializable {
 
@@ -113,5 +115,21 @@ public int getTotalEstimatedTime(){
 
     public int getLastSleepDuration() {
         return lastSleepDuration;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", TaskContext.class.getSimpleName() + "[", "]")
+                .add("id=" + id)
+                .add("indices=" + Arrays.toString(indices))
+                .add("sleeps=" + Arrays.toString(sleeps))
+                .add("inUse=" + inUse)
+                .add("done=" + done)
+                .add("lastIndicesIndex=" + lastIndicesIndex)
+                .add("lastSleepIndex=" + lastSleepIndex)
+                .add("totalTimeSlept=" + totalTimeSlept)
+                .add("lastSleepDuration=" + lastSleepDuration)
+                .add("currentSum=" + currentSum)
+                .toString();
     }
 }

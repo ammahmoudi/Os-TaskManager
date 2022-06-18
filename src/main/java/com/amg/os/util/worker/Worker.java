@@ -3,6 +3,7 @@ package com.amg.os.util.worker;
 
 import com.amg.os.task.Task;
 import com.amg.os.task.TaskContext;
+import com.amg.os.task.TaskRunner;
 import com.amg.os.util.storage.StorageApi;
 
 public class Worker {
@@ -12,6 +13,7 @@ public class Worker {
     int storagePort;
     StorageApi storageApi;
 TaskContext currentContext;
+TaskRunner taskRunner;
 
     public StorageApi getStorageApi() {
         return storageApi;
