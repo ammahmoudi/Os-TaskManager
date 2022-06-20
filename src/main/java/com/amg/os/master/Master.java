@@ -2,6 +2,7 @@ package com.amg.os.master;
 
 import com.amg.os.DeadLockMode;
 import com.amg.os.SchedulingMode;
+import com.amg.os.controllers.MasterController;
 import com.amg.os.request.Packet;
 import com.amg.os.task.TaskBuilder;
 import com.amg.os.task.TaskContext;
@@ -29,7 +30,7 @@ public class Master {
     SchedulingMode schedulingMode;
     DeadLockMode deadLockMode;
     public static int storagePort = -1;
-    public static int masterPort;
+    public static int masterPort=-2;
     int[] storageData;
     StorageApi storageApi;
     public static LinkedList<TaskContext> taskContexts;
@@ -61,6 +62,7 @@ public class Master {
     }
 
     public void initialize() throws IOException, InterruptedException, ExecutionException {
+        jobs_n=taskContexts.size();
         startStorage();
         lock.acquire();
         startWorkers();
@@ -89,7 +91,7 @@ public class Master {
         ) {
             dataString.add(String.valueOf(i));
         }
-
+        System.out.println(masterPort);
         Program storageProgram = new Program(StorageProcess.class, true).addArgument(String.valueOf(masterPort)).addArgument(dataString.toString());
         try {
             storageProgram.run();
@@ -114,14 +116,23 @@ public class Master {
                             System.out.println("Worker " + worker.getId() + " gets job " + taskContext[0].getId());
                             worker.setWorking(true);
                             taskContext[0].setInUse(true);
+                            int finalI = i;
                             new Thread(() -> {
                                 try {
-                                    taskContext[0] = (TaskContext) worker.run(taskContext[0]).getObject();
+                                    TaskContext taskContext1 = (TaskContext) worker.run(taskContext[0]).getObject();
+
+                                    taskContext[0] = taskContext1;
+                                    taskContext[0].setInUse(false);
+                                    taskContexts.set(finalI, taskContext[0]);
+                                    System.out.println(taskContext1);
+                                    if (taskContext1.isDone()) {
+                                        System.out.println("job " + taskContext[0].getId() + " has been done by worker " + worker.getId() + " resulting " + taskContext[0].getCurrentSum());
+                                        MasterController.result.appendText("Job " + taskContext[0].getId() + " has been done by worker " + worker.getId() + " resulting " + taskContext[0].getCurrentSum()+"\n");
+                                    }
                                 } catch (InterruptedException e) {
                                     throw new RuntimeException(e);
                                 }
                                 worker.setWorking(false);
-                                System.out.println("job " + taskContext[0].getId() + " has been done by worker " + worker.getId() + " resulting " + taskContext[0].getCurrentSum());
 
                             }).start();
 
@@ -140,14 +151,23 @@ public class Master {
                             System.out.println("Worker " + worker.getId() + " gets job " + taskContext[0].getId());
                             worker.setWorking(true);
                             taskContext[0].setInUse(true);
+                            int finalI = i;
                             new Thread(() -> {
                                 try {
-                                    taskContext[0] = (TaskContext) worker.run(taskContext[0]).getObject();
+                                    TaskContext taskContext1 = (TaskContext) worker.run(taskContext[0]).getObject();
+
+                                    taskContext[0] = taskContext1;
+                                    taskContext[0].setInUse(false);
+                                    taskContexts.set(finalI, taskContext[0]);
+                                    System.out.println(taskContext1);
+                                    if (taskContext1.isDone()) {
+                                        System.out.println("job " + taskContext[0].getId() + " has been done by worker " + worker.getId() + " resulting " + taskContext[0].getCurrentSum());
+                                        MasterController.result.appendText("Job " + taskContext[0].getId() + " has been done by worker " + worker.getId() + " resulting " + taskContext[0].getCurrentSum()+"\n");
+                                    }
                                 } catch (InterruptedException e) {
                                     throw new RuntimeException(e);
                                 }
                                 worker.setWorking(false);
-                                System.out.println("Job " + taskContext[0].getId() + " has been done by worker " + worker.getId() + " resulting " + taskContext[0].getCurrentSum());
 
                             }).start();
 
@@ -184,9 +204,10 @@ public class Master {
                                     taskContext[0].setInUse(false);
                                     taskContexts.set(finalI, taskContext[0]);
                                     System.out.println(taskContext1);
-                                    if (taskContext1.isDone())
+                                    if (taskContext1.isDone()) {
                                         System.out.println("job " + taskContext[0].getId() + " has been done by worker " + worker.getId() + " resulting " + taskContext[0].getCurrentSum());
-
+                                        MasterController.result.appendText("Job " + taskContext[0].getId() + " has been done by worker " + worker.getId() + " resulting " + taskContext[0].getCurrentSum()+"\n");
+                                    }
 
                                 } catch (InterruptedException e) {
                                     System.out.println("exp");
@@ -202,6 +223,9 @@ public class Master {
                 }
             }
             System.out.println("Program is finished!");
+            MasterController.result.appendText("Finished!\n");
+
+
 
 
         };

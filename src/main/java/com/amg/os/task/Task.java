@@ -42,19 +42,24 @@ public class Task extends  Thread
     private void doSleep() throws InterruptedException {
         int startTime = Time.getNowMillis();
       //  System.out.println("start: "+startTime);
-        Integer timeToSleep = context.getLastSleepDuration();
+        Integer timeToSleep = context.getRemainedTimeOfSleep();
         System.out.println("sleep for " + timeToSleep);
 
         try {
             Thread.sleep(timeToSleep);
             int stopTime = Time.getNowMillis();
+            if(context.getLastSleepIndex()<context.sleeps.length)
             context.setLastSleepIndex(context.getLastSleepIndex()+1);
-            context.setLastSleepDuration(context.sleeps[context.getLastSleepIndex()]);
+
+            context.setRemainedTimeOfSleep((context.getLastSleepIndex()==context.sleeps.length)?0:context.sleeps[context.getLastSleepIndex()]);
+            //int remainedT=context.getRemainedTimeOfSleep()-(stopTime-startTime);
+          //  context.setRemainedTimeOfSleep(Math.max(remainedT, 0));
             context.setTotalTimeSlept(context.getTotalTimeSlept()+(stopTime-startTime));
         } catch (InterruptedException e) {
             int stopTime = Time.getNowMillis();
           //  System.out.println("stop: "+stopTime);
-            context.setLastSleepDuration(context.getLastSleepDuration()-(stopTime-startTime));
+            int remainedT=context.getRemainedTimeOfSleep()-(stopTime-startTime);
+            context.setRemainedTimeOfSleep(Math.max(remainedT, 0));
             context.setTotalTimeSlept(context.getTotalTimeSlept()+(stopTime-startTime));
          //   System.out.println("intrupt in sleep");
             throw e;

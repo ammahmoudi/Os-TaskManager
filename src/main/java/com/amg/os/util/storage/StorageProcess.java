@@ -42,6 +42,7 @@ public class StorageProcess extends Application {
         memoryValues=new int[]{1,2,3,4,5};
         if(args.length>0) {
             port = Integer.parseInt(args[0]);
+
             memoryValues = Arrays.stream(args[1].split(" ")).mapToInt(Integer::parseInt).toArray();
         }
 

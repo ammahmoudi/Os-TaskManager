@@ -13,6 +13,7 @@ public class Program {
     final String classpath = "build\\classes\\java\\main";
     final String modulePath="C:\\Users\\amma\\IdeaProjects\\Os\\jfx-sdk\\lib\\";
     final String fxModules="javafx.controls,javafx.fxml";
+    public static LinkedList<Process> processes =new LinkedList<>();
 
     public Program(List<String> commonArgs) {
     command= new LinkedList<>();
@@ -49,7 +50,9 @@ public class Program {
     public Process run() throws IOException {
         String[] args=new String[command.size()];
         command.toArray(args);
-        return new ProcessBuilder(args).start();
+        Process process=new ProcessBuilder(args).start();
+        processes.add(process);
+        return process ;
     }
     public Process runWithIO() throws IOException {
         String[] args=new String[command.size()];

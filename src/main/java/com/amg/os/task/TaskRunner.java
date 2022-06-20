@@ -1,24 +1,37 @@
 package com.amg.os.task;
 
 import java.io.IOException;
-import java.util.concurrent.*;
+import java.util.concurrent.Semaphore;
 
 import com.amg.os.util.storage.StorageApi;
+import com.amg.os.util.worker.Worker;
 
 
 public class TaskRunner {
 
     private final int storagePort;
     private Task task;
-    
-    public TaskRunner(int storagePort) {
+    private Worker worker;
+    private Semaphore lock;
+    public TaskRunner(int storagePort, Worker worker) {
         this.storagePort = storagePort;
+        this.worker=worker;
         task = null;
+        lock=new Semaphore(0);
+    }
+
+    public Worker getWorker() {
+        return worker;
+    }
+
+    public void setWorker(Worker worker) {
+        this.worker = worker;
     }
 
     public TaskContext runTask(TaskContext context) {
         try {
             task = new Task(newStorageApi(), context);
+            lock.release();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -42,7 +55,8 @@ public class TaskRunner {
         return new StorageApi(storagePort);
     }
 
-    public TaskContext interrupt() {
+    public TaskContext interrupt() throws InterruptedException {
+        lock.acquire();
         TaskContext context =  task.interruptTask();
         task = null;
         return context;

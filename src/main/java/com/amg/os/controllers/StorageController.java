@@ -38,6 +38,7 @@ public class StorageController  {
         storageServer=new StorageServer(storage);
         storageServer.listen(0);
         storage.setPort(storageServer.getServer().port);
+        System.out.println(port);
 
         new Thread(() -> {
             //   Thread.sleep(1000);

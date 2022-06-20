@@ -33,12 +33,16 @@ public class WorkerServer extends AbstractServer {
     public void acceptConnection(Connection connection) {
         new Thread(() -> {
             while (true) {
-                serverConnection(connection);
+                try {
+                    serverConnection(connection);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }).start();
     }
 
-    private void serverConnection(Connection connection) {
+    private void serverConnection(Connection connection) throws InterruptedException {
         Packet packet = connection.readObject();
         if (packet != null)
             switch (packet.getType()) {
@@ -66,13 +70,12 @@ public class WorkerServer extends AbstractServer {
         TaskContext taskContext = (TaskContext) packet.getObject();
         System.out.println("Running job with indices  " + Arrays.toString(taskContext.indices) + " and sleeps " + Arrays.toString(taskContext.sleeps));
 
-
-            worker.setCurrentContext(taskContext);
-            worker.taskRunner = new TaskRunner(worker.getStoragePort());
-            worker.taskRunner.runTask(worker.getCurrentContext());
-            System.out.println(worker.getCurrentContext());
-            connection.sendObject(new Packet(worker.getId(), PacketType.RUN_WORKER, true, worker.getCurrentContext()));
-
+        System.out.println(taskContext);
+        worker.setCurrentContext(taskContext);
+        worker.taskRunner = new TaskRunner(worker.getStoragePort(),worker);
+        worker.taskRunner.runTask(worker.getCurrentContext());
+        System.out.println(worker.getCurrentContext());
+        connection.sendObject(new Packet(worker.getId(), PacketType.RUN_WORKER, true, worker.getCurrentContext()));
 
 
     }

@@ -6,6 +6,8 @@ import com.amg.os.task.TaskContext;
 import com.amg.os.task.TaskRunner;
 import com.amg.os.util.storage.StorageApi;
 
+import java.util.concurrent.Semaphore;
+
 public class Worker {
     int id;
     int port;
@@ -14,6 +16,7 @@ public class Worker {
     StorageApi storageApi;
 TaskContext currentContext;
 TaskRunner taskRunner;
+    private final Semaphore taskAssignmentLock ;
 
     public StorageApi getStorageApi() {
         return storageApi;
@@ -26,10 +29,11 @@ TaskRunner taskRunner;
     public Worker(int id, int port) {
         this.id = id;
         this.port = port;
+        taskAssignmentLock=new Semaphore(0);
     }
 
     public Worker() {
-
+        taskAssignmentLock=new Semaphore(0);
     }
 
     public int getId() {
@@ -62,5 +66,9 @@ TaskRunner taskRunner;
 
     public void setCurrentContext(TaskContext currentContext) {
         this.currentContext = currentContext;
+    }
+
+    public Semaphore getTaskAssignmentLock() {
+        return taskAssignmentLock;
     }
 }

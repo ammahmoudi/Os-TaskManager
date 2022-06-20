@@ -3,6 +3,7 @@ package com.amg.os.master;
 import com.amg.os.App;
 import com.amg.os.controllers.MasterController;
 import com.amg.os.controllers.StorageController;
+import com.amg.os.util.process.Program;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -31,6 +32,10 @@ public class MasterProcess extends Application {
 
 
     public static void main(String[] args) {
+        Runtime.getRuntime().addShutdownHook(new Thread(()->{
+         //   ProcessHandle.current().descendants().forEach(ProcessHandle::destroyForcibly);
+            Program.processes.forEach(Process::destroy);
+        }));
 
         launch(args);
     }

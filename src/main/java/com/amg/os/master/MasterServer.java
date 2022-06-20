@@ -1,10 +1,12 @@
 package com.amg.os.master;
 
+import com.amg.os.controllers.MasterController;
 import com.amg.os.request.Packet;
 import com.amg.os.request.PacketType;
 import com.amg.os.util.network.connection.Connection;
 import com.amg.os.util.network.server.AbstractServer;
 import com.amg.os.util.worker.WorkerApi;
+import javafx.application.Platform;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -73,6 +75,7 @@ public class MasterServer extends AbstractServer {
         Thread thread = new Thread(() -> {
             System.out.println("storage " + " on port: " + port);
             Master.storagePort=port;
+            Platform.runLater(()->{ MasterController.storagePort.setText("storage Port: "+port);});
             Master.lock.release();
             connection.sendObject(new Packet(-1, PacketType.INTRODUCE_STORAGE,true,"Introduced"));
 

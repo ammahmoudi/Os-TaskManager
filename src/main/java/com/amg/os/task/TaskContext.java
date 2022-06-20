@@ -23,17 +23,17 @@ public class TaskContext implements Serializable {
     public Integer lastSleepIndex =-1;
     public int totalTimeSlept;
 
-    private int lastSleepDuration;
+    private int remainedTimeOfSleep;
     private int currentSum;
 
     public TaskContext() {
         currentSum = 0;
-        lastSleepDuration = 0;
+        remainedTimeOfSleep = 0;
         inUse = false;
     }
 
-    public void setLastSleepDuration(int duration) {
-        this.lastSleepDuration = duration;
+    public void setRemainedTimeOfSleep(int duration) {
+        this.remainedTimeOfSleep = duration;
     }
 
     public void setLastSleepIndex(int index) {
@@ -46,8 +46,8 @@ public class TaskContext implements Serializable {
 
     public Integer getNextSleep() {
 
-        if (lastSleepDuration != 0) {
-            return lastSleepDuration;
+        if (remainedTimeOfSleep != 0) {
+            return remainedTimeOfSleep;
         } else {
             if (lastSleepIndex > sleeps.length - 2) return null;
             return sleeps[lastSleepIndex + 1];
@@ -114,8 +114,8 @@ public int getTotalEstimatedTime(){
         return lastSleepIndex;
     }
 
-    public int getLastSleepDuration() {
-        return lastSleepDuration;
+    public int getRemainedTimeOfSleep() {
+        return remainedTimeOfSleep;
     }
 
     @Override
@@ -129,7 +129,7 @@ public int getTotalEstimatedTime(){
                 .add("lastIndicesIndex=" + lastIndicesIndex)
                 .add("lastSleepIndex=" + lastSleepIndex)
                 .add("totalTimeSlept=" + totalTimeSlept)
-                .add("lastSleepDuration=" + lastSleepDuration)
+                .add("remainedSleepDuration=" + remainedTimeOfSleep)
                 .add("currentSum=" + currentSum)
                 .toString();
     }
