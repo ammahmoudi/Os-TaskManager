@@ -25,7 +25,7 @@ tasks.withType(JavaCompile) {
 
 application {
     mainModule = 'com.amg.os'
-    mainClass = 'com.amg.os.util.storage.StorageProcess'
+    mainClass = 'com.amg.os.master.MasterProcess'
 }
 
 javafx {
@@ -35,7 +35,7 @@ javafx {
 
 dependencies {
     implementation('org.controlsfx:controlsfx:11.1.1')
-    implementation('org.kordamp.ikonli:ikonli-javafx:12.3.0')
+    implementation('org.kordamp.ikonli:ikonli-javafx:12.3.1')
     implementation('org.kordamp.bootstrapfx:bootstrapfx-core:0.4.0')
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
@@ -62,16 +62,11 @@ sourceSets {
     main.output.resourcesDir = main.java.outputDir
 }
 
-//// at compile time, include resources in module
+// at compile time, include resources in module
 //compileJava {
 //    inputs.property("moduleName", moduleName)
 //    doFirst {
-//        options.compilerArgs = [
-//                '--module-path', classpath.asPath,
-//                '--patch-module', "$moduleName=",
-//                + files(sourceSets.main.resources.srcDirs).asPath,
-//                '--module-version', "$moduleVersion"
-//        ]
+//        options.compilerArgs = ['--module-path', classpath.asPath, '--patch-module', "$moduleName=", files(sourceSets.main.resources.srcDirs).asPath, '--module-version', "$moduleVersion"]
 //        classpath = files()
 //    }
 //}
